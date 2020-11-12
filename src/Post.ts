@@ -13,7 +13,9 @@ export class Post extends BaseModel {
 
   static queryParametersNames: QueryParamsConfig = {
     filter: null,
-    include: '_embed'
+    include: '_embed',
+    limit: '_limit',
+    offset: '_start'
   }
 
   $comments () {
