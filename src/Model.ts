@@ -2,7 +2,6 @@ import { AxiosInstance, AxiosResponse } from "axios"
 import Builder from "./Builder"
 import { Response, SingleResponse, ArrayResponse } from './Response'
 import { Request } from './Request'
-import { Query } from "./Query"
 import { HasMany } from "./Relations/HasMany"
 import { Relation } from "./Relations/Relation"
 import { BelongsTo } from "./Relations/BelongsTo"
@@ -15,6 +14,9 @@ export interface QueryParamsConfig {
   expand?: string
   fields?: string
   search?: string
+  limit?: string
+  offset?: string
+  page?: string
 
 }
 
@@ -31,7 +33,10 @@ const defaultQueryParametersNames: QueryParamsConfig = {
   fields: 'fields',
   search: 'q',
   embed: 'embed',
-  expand: 'expand'
+  expand: 'expand',
+  limit: 'limit',
+  offset: 'offset',
+  page: 'page',
 }
 
 export class Model {
@@ -129,6 +134,14 @@ export class Model {
 
   static search (value: string): Builder {
     return Builder.forModel(this).search(value)
+  }
+
+  static limit (amount: number): Builder {
+    return Builder.forModel(this).limit(amount)
+  }
+
+  static offset (amount: number): Builder {
+    return Builder.forModel(this).offset(amount)
   }
 
   /* utils */

@@ -5,14 +5,14 @@ import { SingleResponse, ArrayResponse } from './Response';
 import { Dispatcher } from './Dispatcher';
 
 export default class Builder {
-  
+
   modelClass: typeof Model
 
   private url: string
   private includes = []
   private filters: { [key: string ]: string } = {}
   private searchTerm: string
-  private queryParams: QueryParams = {} 
+  private queryParams: QueryParams = {}
 
   static forModel (modelClass: typeof Model): Builder {
     let instance = new Builder()
@@ -48,7 +48,7 @@ export default class Builder {
     this.searchTerm = value
     return this
   }
-  
+
   /* final methods */
 
   find<T extends Model> (id: string | number): Promise<SingleResponse<T>> {
@@ -61,27 +61,21 @@ export default class Builder {
     const dispather = new Dispatcher(this, this.modelClass.httpClient())
     return this.modelClass.resolveArrayResponse(dispather.dispatch('GET'))
   }
-      
-  /* accessed from Model */
 
   getQuery (): Query {
-    let query: Query = {
+    return {
       url: this.url,
       params: this.resolveQueryParams()
     }
-    return query
-  }  
+  }
 
-  private resolveQueryParams (): QueryParams {    
-    let queryParams: QueryParams = {}
-    
+  private resolveQueryParams (): QueryParams {
+    const baseQueryParams = this.queryParams
     const filters = this.resolveFilters()
     const includes = this.resolveIncludes()
     const search = this.resolveSearch()
 
-    queryParams = Object.assign(queryParams, filters, includes, search)
-    
-    return queryParams
+    return Object.assign({}, baseQueryParams, filters, includes, search)
   }
 
   private resolveInstanceEndpoint (model: Model): string {
@@ -93,7 +87,7 @@ export default class Builder {
     return basePath
   }
 
-  private resolveBaseResourcePath (modelClass: typeof Model): string {      
+  private resolveBaseResourcePath (modelClass: typeof Model): string {
     return `${modelClass.baseUrl()}/${modelClass.resource()}`
   }
 
@@ -102,13 +96,14 @@ export default class Builder {
    */
 
   limit (limit: number): Builder {
-    return this.setQueryParam('limit', limit.toString())
+    return this.setQueryParam(this.modelClass.assignedParametersNames.limit, limit.toString())
+  }
+
+  offset (offset: number): Builder {
+    return this.setQueryParam(this.modelClass.assignedParametersNames.offset, offset.toString())
   }
 
   private setQueryParam (param: string, value: string): Builder {
-    if (!this.queryParams) {
-      this.queryParams = {}
-    }
     this.queryParams[param] = value
     return this
   }
